@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private TextView txtTotalItem;
     private Button   btnShowList;
     private Map<String, List<String>> orderList = new LinkedHashMap<>();//to Store all the orders
-    private List<String> itemList = new ArrayList<>();
+    private List<String> productList = new ArrayList<>(); // product list name
+    private List<String> productIdList = new ArrayList<>(); // product list id
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +52,11 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         setContentView(R.layout.activity_main);
 
         getDataFromUrl();
-        setUpViews();// setup the intial view
-        //getDataFromUrl(); // fetch results from the api
+        setUpViews();
+        spinnerItemSelect.setOnItemSelectedListener(this);
     }
 
+    //Setup Initial Views
     public void setUpViews()
     {
         spinnerItemSelect = (Spinner)  findViewById(R.id.spinnerItemSelect);
@@ -62,16 +64,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         txtPricePerItem   = (TextView) findViewById(R.id.txtPricePerItem);
         txtTotalItem      = (TextView) findViewById(R.id.txtTotalItem );
         btnShowList       = (Button)   findViewById(R.id.btnShowList);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, itemList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerItemSelect.setAdapter(adapter);
-
-        spinnerItemSelect.setOnItemSelectedListener(this);
-        //String b = spinnerItemSelect.getSelectedItem().toString();
-        Toast.makeText(getApplicationContext(),"ItemSelect",Toast.LENGTH_SHORT).show();
-
     }
+
+    // fetching the data obtained from Async request into our gloable list and orderHashmap
     public void  getDataFromUrl() {
         AsyncHttpClient client = new AsyncHttpClient();
         progressBar();
@@ -80,7 +75,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             @Override
             public void onStart() {
                 // called before request is started
-                progressDialog.dismiss();
+                //progressDialog.dismiss();
             }
 
             @Override
@@ -118,7 +113,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             public void onFinish()
             {
                 getOrders();
-                progressDialog.dismiss();
+                setSpinner();
+                //progressDialog.dismiss();
             }
         });
     }
@@ -155,7 +151,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     itemDetails.add(LineItems[j].getLineItemProductId());
                     itemDetails.add(LineItems[j].getLineItemQuantity());
                     itemDetails.add(LineItems[j].getLineItemTitle());
-                    itemList.add(LineItems[j].getLineItemTitle());
+                    productList.add(LineItems[j].getLineItemTitle());
+                    productIdList.add(LineItems[j].getLineItemProductId());
                     orderList.put(productId,itemDetails);
                 }
             }
@@ -172,28 +169,30 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     }
 
+    // To perform some action on item selected
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-         {
-             switch (parent.getId())
-             {
-                 case R.id.spinnerItemSelect:
-                     Toast.makeText(getApplicationContext(), spinnerItemSelect.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
-                     break;
-             }
-         }
+        {
+            switch (parent.getId())
+            {
+                case R.id.spinnerItemSelect:
+                    //Toast.makeText(getApplicationContext(), spinnerItemSelect.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
+                    txtTotalItem.setText( orderList.get(productIdList.get(position)).get(AppConstants.kProductQuantity));
+                    txtTotalValue.setText( orderList.get(productIdList.get(position)).get(AppConstants.kProductPrice));
+                    break;
+            }
+        }
     }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
-//    public List<String> getItemsList()
-//    {
-//        List <String> ItemList = new ArrayList<>();
-//        for(int i = 0; i<orderList.size();i++)
-//        {
-//            ItemList.add(orderList.)
-//        }
-//        return ItemList;
-//    }
+
+    //Setting up spinner data once the data fetching is coemplete from Async request
+    public void setSpinner()
+    {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, productList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerItemSelect.setAdapter(adapter);
+    }
 }
