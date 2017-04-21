@@ -8,6 +8,7 @@ import android.app.ProgressDialog;
 import android.preference.PreferenceActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.FloatProperty;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -42,9 +43,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private TextView txtPricePerItem;
     private TextView txtTotalItem;
     private Button   btnShowList;
-    private Map<String, List<String>> orderList = new LinkedHashMap<>();//to Store all the orders
+    private Map<String, List<String>> productDetailList = new LinkedHashMap<>();//to Store all the orders
     private List<String> productList = new ArrayList<>(); // product list name
     private List<String> productIdList = new ArrayList<>(); // product list id
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         getDataFromUrl();
         setUpViews();
-        spinnerItemSelect.setOnItemSelectedListener(this);
+
     }
 
     //Setup Initial Views
@@ -64,6 +66,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         txtPricePerItem   = (TextView) findViewById(R.id.txtPricePerItem);
         txtTotalItem      = (TextView) findViewById(R.id.txtTotalItem );
         btnShowList       = (Button)   findViewById(R.id.btnShowList);
+        spinnerItemSelect.setOnItemSelectedListener(this);
+        btnShowList.setOnClickListener(this);
     }
 
     // fetching the data obtained from Async request into our gloable list and orderHashmap
@@ -137,11 +141,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 List<String> itemDetails = new ArrayList<>();
                 productId = (LineItems[j].getLineItemProductId()) ;
 
-                if((!orderList.isEmpty()) && orderList.containsKey(productId)) // if product already exist then increase the quantity
+                // if product already exist then increase the quantity
+                if((!productDetailList.isEmpty()) && productDetailList.containsKey(productId))
                 {
-                    int oldProductQuantity =  Integer.parseInt(orderList.get(productId).get(4)) ;
+                    int oldProductQuantity =  Integer.parseInt(productDetailList.get(productId).get(4)) ;
                     int newProductQuantity =  oldProductQuantity + Integer.parseInt(LineItems[j].getLineItemQuantity());
-                    orderList.get(productId).set(4, Integer.toString(newProductQuantity));
+                    productDetailList.get(productId).set(4, Integer.toString(newProductQuantity));
                 }
                 else // add the new product
                 {
@@ -153,7 +158,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     itemDetails.add(LineItems[j].getLineItemTitle());
                     productList.add(LineItems[j].getLineItemTitle());
                     productIdList.add(LineItems[j].getLineItemProductId());
-                    orderList.put(productId,itemDetails);
+                    productDetailList.put(productId,itemDetails);
                 }
             }
         }
@@ -176,9 +181,31 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             switch (parent.getId())
             {
                 case R.id.spinnerItemSelect:
-                    //Toast.makeText(getApplicationContext(), spinnerItemSelect.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
-                    txtTotalItem.setText( orderList.get(productIdList.get(position)).get(AppConstants.kProductQuantity));
-                    txtTotalValue.setText( orderList.get(productIdList.get(position)).get(AppConstants.kProductPrice));
+                    if(!productList.get(position).equals("ALL")) {
+                        //Toast.makeText(getApplicationContext(), spinnerItemSelect.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
+                        double totalPrice = 0.0d;
+                        totalPrice = Float.parseFloat(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice)) *
+                                     Integer.parseInt(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductQuantity)) ;
+                        totalPrice = Math.round(totalPrice*100.0)/100.0;
+                        txtTotalItem.setText(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductQuantity));
+                        txtTotalValue.setText("$"+Double.toString(totalPrice));
+                        txtPricePerItem.setText("$"+productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice));
+                    }
+                    else
+                    {
+                        int totalItem  = 0;
+                        double totalPrice = 0.0d;
+
+                        for(int i=0;i<productIdList.size();i++)
+                        {
+                            totalItem  = totalItem + Integer.parseInt(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductQuantity)) ;
+                            totalPrice = totalPrice + Float.parseFloat(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductPrice)) ;
+                        }
+                        totalPrice = Math.round(totalPrice*100.0)/100.0;
+                        txtTotalItem.setText(Integer.toString(totalItem));
+                        txtTotalValue.setText("$"+Double.toString(totalPrice));
+                        txtPricePerItem.setText("-");
+                    }
                     break;
             }
         }
@@ -191,6 +218,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     //Setting up spinner data once the data fetching is coemplete from Async request
     public void setSpinner()
     {
+        productList.add("ALL"); // To add an option to select calculation for all the items
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, productList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerItemSelect.setAdapter(adapter);
