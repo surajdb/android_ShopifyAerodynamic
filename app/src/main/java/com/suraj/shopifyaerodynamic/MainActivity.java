@@ -5,6 +5,8 @@ package com.suraj.shopifyaerodynamic;
  */
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.preference.PreferenceActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +20,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.MPPointF;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
@@ -32,6 +41,8 @@ import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
+import static android.R.attr.entries;
+
 
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
@@ -43,10 +54,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private TextView txtPricePerItem;
     private TextView txtTotalItem;
     private Button   btnShowList;
+    PieChart pieChart;
     private Map<String, List<String>> productDetailList = new LinkedHashMap<>();//to Store all the orders
     private List<String> productList = new ArrayList<>(); // product list name
     private List<String> productIdList = new ArrayList<>(); // product list id
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +77,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         txtPricePerItem   = (TextView) findViewById(R.id.txtPricePerItem);
         txtTotalItem      = (TextView) findViewById(R.id.txtTotalItem );
         btnShowList       = (Button)   findViewById(R.id.btnShowList);
+        pieChart  = (PieChart) findViewById(R.id.chart);
         spinnerItemSelect.setOnItemSelectedListener(this);
         btnShowList.setOnClickListener(this);
     }
@@ -181,30 +193,50 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             switch (parent.getId())
             {
                 case R.id.spinnerItemSelect:
-                    if(!productList.get(position).equals("ALL")) {
+                    if(!productList.get(position).equals("ALL")) // for Displaying results for all items
+                    {
                         //Toast.makeText(getApplicationContext(), spinnerItemSelect.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
-                        double totalPrice = 0.0d;
+                        float totalPrice = 0.0f;
                         totalPrice = Float.parseFloat(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice)) *
                                      Integer.parseInt(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductQuantity)) ;
-                        totalPrice = Math.round(totalPrice*100.0)/100.0;
-                        txtTotalItem.setText(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductQuantity));
-                        txtTotalValue.setText("$"+Double.toString(totalPrice));
-                        txtPricePerItem.setText("$"+productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice));
-                    }
-                    else
-                    {
-                        int totalItem  = 0;
-                        double totalPrice = 0.0d;
 
-                        for(int i=0;i<productIdList.size();i++)
-                        {
-                            totalItem  = totalItem + Integer.parseInt(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductQuantity)) ;
-                            totalPrice = totalPrice + Float.parseFloat(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductPrice)) ;
-                        }
-                        totalPrice = Math.round(totalPrice*100.0)/100.0;
-                        txtTotalItem.setText(Integer.toString(totalItem));
-                        txtTotalValue.setText("$"+Double.toString(totalPrice));
-                        txtPricePerItem.setText("-");
+                        txtTotalItem.setText(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductQuantity));
+                        txtTotalValue.setText("$"+Double.toString(Math.round(totalPrice*100.00)/100.00));
+                        txtPricePerItem.setText("$"+productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice));
+
+                        List<PieEntry> entries = new ArrayList<>();
+                        Float percentage = 100*totalPrice/calTotalPrice();
+                        entries.add(new PieEntry(percentage, productDetailList.get(productIdList.get(position)).get(AppConstants.kProductName))); // total price for each product
+                        entries.add(new PieEntry(100- percentage,"Rest"));// total price for all product
+
+                        PieDataSet dataSet = new PieDataSet(entries, "");
+                        dataSet.setDrawIcons(false);
+
+                        // adding colors
+                        ArrayList<Integer> colors = new ArrayList<Integer>();
+                        for (int c : ColorTemplate.JOYFUL_COLORS)
+                            colors.add(c);
+                        colors.add(ColorTemplate.getHoloBlue());
+                        //Formatting the PIE
+                        dataSet.setSliceSpace(2f);
+                        dataSet.setIconsOffset(new MPPointF(0, 40));
+                        dataSet.setSelectionShift(5f);
+                        dataSet.setValueTextColor(Color.BLACK);
+                        dataSet.setColors(colors);
+
+                        PieData data = new PieData(dataSet);
+                        data.setValueFormatter(new PercentFormatter());
+                        data.setValueTextSize(14f);
+                        data.setValueTextColor(Color.BLACK);
+                        pieChart.setData(data);
+                        pieChart.invalidate(); // refresh
+                        pieChart.setCenterText("Product Share");
+                    }
+                    else // for Displaying results for individual items
+                    {
+                        txtTotalItem.setText(Integer.toString(calTotalItem()));
+                        txtTotalValue.setText("$"+Double.toString(Math.round(calTotalPrice()*100.0)/100.0)); // Rounding off to d2 decimal places
+                        txtPricePerItem.setText("-");// txtPricePerItem.setText("-");
                     }
                     break;
             }
@@ -222,5 +254,28 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, productList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerItemSelect.setAdapter(adapter);
+
     }
+    // For Total item in the orders
+    public int calTotalItem()
+    {
+        int totalItem = 0;
+        for(int i=0;i<productIdList.size();i++)
+        {
+            totalItem  = totalItem + Integer.parseInt(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductQuantity)) ;
+        }
+        return totalItem;
+    }
+    // For calculating Total Value of all the product
+    public float calTotalPrice()
+    {
+        float totalPrice = 0.0f;
+        for(int i=0;i<productIdList.size();i++)
+        {
+            totalPrice = totalPrice + Float.parseFloat(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductQuantity))  *
+                                        Float.parseFloat(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductPrice)) ;
+        }
+        return totalPrice;
+    }
+
 }
