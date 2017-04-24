@@ -1,4 +1,4 @@
-package com.suraj.shopifyaerodynamic;
+package com.suraj.shopifyaerodynamic.Screens;
 
 /**
  * Created by Suraj on 04/19/2017.
@@ -31,6 +31,7 @@ import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.suraj.shopifyaerodynamic.Model.ItemModel;
+import com.suraj.shopifyaerodynamic.R;
 import com.suraj.shopifyaerodynamic.Utility.AppConstants;
 
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 {
                     if(list.get(t).getOrderCustomer() == null)
                     {
-                        list.get(t).setOrderCustomer(new ItemModel.Items.Customer()); // If there are any null object for Customer details replace it with Default blank etails
+                        list.get(t).setOrderCustomer(new ItemModel.Items.Customer()); // If there are any null object for Customer details replace it with Default blank details
                     }
                 }
                 final List<ItemModel.Items> modelWebItems = model.getWebItems();

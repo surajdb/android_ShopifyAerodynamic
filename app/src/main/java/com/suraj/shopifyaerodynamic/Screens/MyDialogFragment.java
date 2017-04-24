@@ -1,7 +1,6 @@
-package com.suraj.shopifyaerodynamic;
+package com.suraj.shopifyaerodynamic.Screens;
 
 import android.app.DialogFragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +8,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.suraj.shopifyaerodynamic.Adapter.OrderAdapter;
 import com.suraj.shopifyaerodynamic.Adapter.OrderProductAdapter;
 import com.suraj.shopifyaerodynamic.Model.ItemModel;
+import com.suraj.shopifyaerodynamic.R;
 
-import java.util.List;
 
 /**
  * Created by Suraj on 4/22/2017.
@@ -43,14 +40,15 @@ public class MyDialogFragment extends DialogFragment {
         txtOrderTotalPrice =  (TextView) rootView.findViewById(R.id.txtOrderTotalPrice);
         productListView    =  (ListView) rootView.findViewById(R.id.productListView);
 
-        int a = productListView.getId();
+        String email = orderList.getOrderCustomer().getCustomerEmail();
+        email = email.equals("")?"No Email Provided":email;
+        String fullName= orderList.getOrderCustomer().getCustomerFirstName()+ " " + orderList.getOrderCustomer().getCustomerLastName();
+        fullName = fullName.equals(" ")?"N/A":fullName;
+
         txtOrderNumber.setText(orderList.getorderNumber());
         txtOrderCreatedAt.setText(orderList.getOrderCreatedAt().substring(0,10));
         txtOrderTotalPrice.setText("$"+orderList.getOrderTotalPrice());
-        String email = orderList.getOrderCustomer().getCustomerEmail();
-        email = email.equals("")?"No Email Provided":email;
         txtOrderCustEmail.setText(email);
-        String fullName= orderList.getOrderCustomer().getCustomerFirstName()+ " " + orderList.getOrderCustomer().getCustomerLastName();
         txtOrderCustName.setText(fullName);
 
         orderProductAdapter = new OrderProductAdapter(getActivity(), R.layout.product_list_item, orderList.getorderLineItems());
