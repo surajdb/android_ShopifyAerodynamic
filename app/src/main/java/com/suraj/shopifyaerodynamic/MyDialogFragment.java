@@ -23,9 +23,10 @@ import java.util.List;
 public class MyDialogFragment extends DialogFragment {
     private  ItemModel.Items orderList;
     private TextView txtOrderNumber;
-    private TextView txtOrderUserId;
     private TextView txtOrderCreatedAt;
     private TextView txtOrderTotalPrice;
+    private TextView txtOrderCustEmail;
+    private TextView txtOrderCustName;
     private OrderProductAdapter orderProductAdapter;
     private ListView productListView;
     @Override
@@ -34,19 +35,23 @@ public class MyDialogFragment extends DialogFragment {
         orderList = getArguments().getParcelable("order");
         getDialog().setTitle("Order Details");
 
-        Button dismiss     = (Button) rootView.findViewById(R.id.dismiss);
+        Button dismiss     =  (Button) rootView.findViewById(R.id.dismiss);
         txtOrderNumber     =  (TextView) rootView.findViewById(R.id.txtOrderNumber);
-        txtOrderUserId     =  (TextView) rootView.findViewById(R.id.txtOrderUserId);
         txtOrderCreatedAt  =  (TextView) rootView.findViewById(R.id.txtOrderCreatedAt);
+        txtOrderCustEmail  =  (TextView) rootView.findViewById(R.id.txtOrderCustEmail);
+        txtOrderCustName   =  (TextView) rootView.findViewById(R.id.txtOrderCustName);
         txtOrderTotalPrice =  (TextView) rootView.findViewById(R.id.txtOrderTotalPrice);
-        productListView    = (ListView) rootView.findViewById(R.id.productListView);
+        productListView    =  (ListView) rootView.findViewById(R.id.productListView);
 
         int a = productListView.getId();
         txtOrderNumber.setText(orderList.getorderNumber());
-        txtOrderUserId.setText(orderList.getorderuserId());
-        txtOrderCreatedAt.setText(orderList.getOrderCreatedAt());
-        txtOrderTotalPrice.setText(orderList.getOrderTotalPrice());
-
+        txtOrderCreatedAt.setText(orderList.getOrderCreatedAt().substring(0,10));
+        txtOrderTotalPrice.setText("$"+orderList.getOrderTotalPrice());
+        String email = orderList.getOrderCustomer().getCustomerEmail();
+        email = email.equals("")?"No Email Provided":email;
+        txtOrderCustEmail.setText(email);
+        String fullName= orderList.getOrderCustomer().getCustomerFirstName()+ " " + orderList.getOrderCustomer().getCustomerLastName();
+        txtOrderCustName.setText(fullName);
 
         orderProductAdapter = new OrderProductAdapter(getActivity(), R.layout.product_list_item, orderList.getorderLineItems());
         productListView.setAdapter(orderProductAdapter);

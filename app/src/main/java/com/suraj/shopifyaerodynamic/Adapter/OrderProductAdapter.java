@@ -32,20 +32,20 @@ public class OrderProductAdapter extends ArrayAdapter<ItemModel.Items.LineItems>
         this.layoutResID = resource;
     }
 
-   @Override
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(getContext()).
                 inflate(R.layout.product_list_item, parent, false);
 
-          ItemModel.Items.LineItems products = productList.get(position);
+        ItemModel.Items.LineItems products = productList.get(position);
 
-       txtProductId = (TextView) convertView.findViewById(R.id.txtProductId);
-       txtProductName = (TextView) convertView.findViewById(R.id.txtProductName);
-       txtProductQuantity = (TextView) convertView.findViewById(R.id.txtProductQuantity);
+        txtProductId = (TextView) convertView.findViewById(R.id.txtProductId);
+        txtProductName = (TextView) convertView.findViewById(R.id.txtProductName);
+        txtProductQuantity = (TextView) convertView.findViewById(R.id.txtProductQuantity);
 
-       txtProductId.setText(products.getLineItemProductId().toString());
-       txtProductName.setText(products.getLineItemName().toString());
-       txtProductQuantity.setText(products.getLineItemQuantity().toString());
-       return convertView;
+        txtProductId.setText(products.getLineItemProductId().toString());
+        txtProductName.setText(products.getLineItemName().toString());
+        txtProductQuantity.setText(products.getLineItemQuantity().toString());
+        return convertView;
     }
 }

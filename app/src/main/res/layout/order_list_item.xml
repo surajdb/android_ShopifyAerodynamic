@@ -22,7 +22,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/txtOrderNumberLabel"
                 android:layout_weight="1"
-                android:text="Order Number" />
+                android:text="Order Number"
+                android:textStyle="normal|bold" />
 
             <TextView
                 android:text="123456789"
@@ -42,13 +43,34 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/txtOrderDateLabel"
                 android:layout_weight="1"
-                android:text="Order Date" />
+                android:text="Order Date"
+                android:textStyle="normal|bold" />
 
             <TextView
                 android:text="21/11/1990"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtOrderDate"
+                android:layout_weight="1" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtOrderQuantityLabel"
+                android:layout_weight="1"
+                android:text="Order Items"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:text="4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtOrderItems"
                 android:layout_weight="1" />
         </LinearLayout>
     </LinearLayout>

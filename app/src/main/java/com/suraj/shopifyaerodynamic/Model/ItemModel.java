@@ -5,7 +5,6 @@ package com.suraj.shopifyaerodynamic.Model;
  */
 
 
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -17,22 +16,6 @@ import java.util.List;
 public class ItemModel implements Parcelable{
     @SerializedName("orders")
     List<Items> webItems = new ArrayList<>();
-
-    public ItemModel(Parcel in) {
-        webItems = in.createTypedArrayList(Items.CREATOR);
-    }
-
-    public static final Creator<ItemModel> CREATOR = new Creator<ItemModel>() {
-        @Override
-        public ItemModel createFromParcel(Parcel in) {
-            return new ItemModel(in);
-        }
-
-        @Override
-        public ItemModel[] newArray(int size) {
-            return new ItemModel[size];
-        }
-    };
 
     public List<Items> getWebItems() {
         return webItems;
@@ -52,6 +35,25 @@ public class ItemModel implements Parcelable{
         dest.writeTypedList(webItems);
     }
 
+    //======================Parcelable Implemenatation start ==================
+    public ItemModel(Parcel in) {
+        webItems = in.createTypedArrayList(Items.CREATOR);
+    }
+
+    public static final Creator<ItemModel> CREATOR = new Creator<ItemModel>() {
+        @Override
+        public ItemModel createFromParcel(Parcel in) {
+            return new ItemModel(in);
+        }
+
+        @Override
+        public ItemModel[] newArray(int size) {
+            return new ItemModel[size];
+        }
+    };
+    //======================Parcelable Implemenatation end ========================
+
+
     public static class Items implements Parcelable{
 
         @SerializedName("id")
@@ -64,9 +66,21 @@ public class ItemModel implements Parcelable{
         String orderuserId;
         @SerializedName("created_at")
         String orderCreatedAt;
+
+        public Customer getOrderCustomer() {
+            return orderCustomer;
+        }
+
+        public void setOrderCustomer(Customer orderCustomer) {
+            this.orderCustomer = orderCustomer;
+        }
+
+        @SerializedName("customer")
+        Customer orderCustomer ;
+
         @SerializedName("line_items")
         List<LineItems> orderLineItems = new ArrayList<>();
-//==========================================================================
+//==============================Parcelable Implemenatation start =======================
         protected Items(Parcel in) {
             orderID = in.readString();
             orderTotalPrice = in.readString();
@@ -74,6 +88,7 @@ public class ItemModel implements Parcelable{
             orderuserId = in.readString();
             orderCreatedAt = in.readString();
             in.readTypedList(orderLineItems, LineItems.CREATOR);
+            orderCustomer = in.readParcelable(Customer.class.getClassLoader()); //in.readParcelable(Customer.class.getClassLoader());
         }
 
         public static final Creator<Items> CREATOR = new Creator<Items>() {
@@ -100,8 +115,9 @@ public class ItemModel implements Parcelable{
             dest.writeString(orderuserId);
             dest.writeString(orderCreatedAt);
             dest.writeTypedList(orderLineItems);
+            dest.writeParcelable(orderCustomer,flags);
         }
-//==========================================================================
+//=============================Parcelable Implemenatation end=============================
         public String getOrderID() {
             return orderID;
         }
@@ -149,6 +165,9 @@ public class ItemModel implements Parcelable{
         public void setorderLineItems(List<LineItems> orderLineItems) {
             orderLineItems = orderLineItems;
         }
+
+
+
 
         public static class LineItems implements Parcelable{
             @SerializedName("id")
@@ -251,6 +270,81 @@ public class ItemModel implements Parcelable{
                 dest.writeString(LineItemPrice);
                 dest.writeString(LineItemName);
                 dest.writeString(LineItemProductId);
+            }
+        }
+
+
+
+        public static class Customer implements Parcelable {
+
+            @SerializedName("email")
+            String customerEmail;
+
+            @SerializedName("first_name")
+            String customerFirstName;
+
+            @SerializedName("last_name")
+            String customerLastName;
+
+            public String getCustomerEmail() {
+                return customerEmail;
+            }
+
+            public String getCustomerFirstName() {
+                return customerFirstName;
+            }
+
+            public String getCustomerLastName() {
+                return customerLastName;
+            }
+
+            public void setCustomerEmail(String customerEmail) {
+                this.customerEmail = customerEmail;
+            }
+
+            public void setCustomerFirstName(String customerFirstName) {
+                this.customerFirstName = customerFirstName;
+            }
+
+            public void setCustomerLastName(String customerLastName) {
+                this.customerLastName = customerLastName;
+            }
+
+
+            protected Customer(Parcel in) {
+                customerEmail = in.readString();
+                customerFirstName = in.readString();
+                customerLastName = in.readString();
+            }
+
+            public static final Creator<Customer> CREATOR = new Creator<Customer>() {
+                @Override
+                public Customer createFromParcel(Parcel in) {
+                    return new Customer(in);
+                }
+
+                @Override
+                public Customer[] newArray(int size) {
+                    return new Customer[size];
+                }
+            };
+
+            public Customer() { // Default constructor with blank values
+                customerEmail="";
+                customerFirstName="";
+                customerLastName="";
+            }
+
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+                dest.writeString(customerEmail);
+                dest.writeString(customerFirstName);
+                dest.writeString(customerLastName);
             }
         }
     }

@@ -18,6 +18,7 @@ public class OrderAdapter extends ArrayAdapter<ItemModel.Items> {
     int layoutResID;
     TextView txtOrderNumber;
     TextView txtOrderDate;
+    TextView txtOrderQuantity;
 
     public OrderAdapter(Context context, int resource, List<ItemModel.Items> listItems) {
         super(context, resource, listItems);
@@ -36,10 +37,13 @@ public class OrderAdapter extends ArrayAdapter<ItemModel.Items> {
 
         txtOrderNumber = (TextView) convertView.findViewById(R.id.txtOrderNumber);
         txtOrderDate = (TextView) convertView.findViewById(R.id.txtOrderDate);
+        txtOrderQuantity = (TextView) convertView.findViewById(R.id.txtOrderItems);
 
         txtOrderNumber.setText(order.getorderNumber().toString());
-        txtOrderDate.setText(order.getOrderCreatedAt().toString());
+        txtOrderDate.setText(order.getOrderCreatedAt().toString().substring(0,10));
+        txtOrderQuantity.setText(Integer.toString(order.getorderLineItems().size()));
         return convertView;
     }
+
 
 }

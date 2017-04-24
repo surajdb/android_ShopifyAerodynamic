@@ -103,6 +103,13 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 ItemModel model ;//= new ItemModel();
                 model = gson.fromJson(String.valueOf(responseString), ItemModel.class);
                 list = model.getWebItems();
+                for(int t= 0; t<list.size();t++)
+                {
+                    if(list.get(t).getOrderCustomer() == null)
+                    {
+                        list.get(t).setOrderCustomer(new ItemModel.Items.Customer()); // If there are any null object for Customer details replace it with Default blank etails
+                    }
+                }
                 final List<ItemModel.Items> modelWebItems = model.getWebItems();
 
                 if(modelWebItems.isEmpty()) {
