@@ -185,6 +185,9 @@ public class ItemModel implements Parcelable{
             @SerializedName("name")
             String LineItemName;
 
+            @SerializedName("variant_id")
+            String LineItemVariantId;
+
             @SerializedName("product_id")
             String LineItemProductId;
 
@@ -194,6 +197,7 @@ public class ItemModel implements Parcelable{
                 LineItemQuantity = in.readString();
                 LineItemPrice = in.readString();
                 LineItemName = in.readString();
+                LineItemVariantId =in.readString();
                 LineItemProductId = in.readString();
             }
 
@@ -233,6 +237,14 @@ public class ItemModel implements Parcelable{
                 return LineItemProductId;
             }
 
+            public String getLineItemVariantId() {
+                return LineItemVariantId;
+            }
+
+            public void setLineItemVariantId(String lineItemVariantId) {
+                LineItemVariantId = lineItemVariantId;
+            }
+
             public void setLineItemId(String lineItemId) {
                 LineItemId = lineItemId;
             }
@@ -269,6 +281,7 @@ public class ItemModel implements Parcelable{
                 dest.writeString(LineItemQuantity);
                 dest.writeString(LineItemPrice);
                 dest.writeString(LineItemName);
+                dest.writeString(LineItemVariantId);
                 dest.writeString(LineItemProductId);
             }
         }

@@ -6,9 +6,6 @@ package com.suraj.shopifyaerodynamic.Utility;
 
 public class AppConstants {
 
-
-    public static final int REQUEST_CODE_GALLERY = 11;
-    public static final int REQUEST_CODE_WGALLERY = 12;
     //error messages
     public static final String kUrl = "https://shopicruit.myshopify.com/admin/orders.json?page=1&access_token=c32313df0d0ef512ca64d5b336a0d7c6";
     public static final String kERROR_MSG = "Internet may be not turned on!";
@@ -21,5 +18,6 @@ public class AppConstants {
     public static final int kProductId = 3;
     public static final int kProductQuantity = 4;
     public static final int kProductName = 5;
+    public static final String kAll= "ALL";
 
 }

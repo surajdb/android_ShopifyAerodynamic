@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 {
                     if(list.get(t).getOrderCustomer() == null)
                     {
-                        list.get(t).setOrderCustomer(new ItemModel.Items.Customer()); // If there are any null object for Customer details replace it with Default blank details
+                        list.get(t).setOrderCustomer(new ItemModel.Items.Customer()); // If there are any null object for Customer details replace it with Default blank details. First order's customer is null
                     }
                 }
                 final List<ItemModel.Items> modelWebItems = model.getWebItems();
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             for(int j=0;j<LineItems.size();j++)
             {
                 List<String> itemDetails = new ArrayList<>();
-                productId = (LineItems.get(j).getLineItemProductId()) ;
+                productId = (LineItems.get(j).getLineItemProductId())+(LineItems.get(j).getLineItemVariantId()) ;
 
                 // if product already exist then increase the quantity
                 if((!productDetailList.isEmpty()) && productDetailList.containsKey(productId))
@@ -169,8 +169,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     itemDetails.add(LineItems.get(j).getLineItemProductId());
                     itemDetails.add(LineItems.get(j).getLineItemQuantity());
                     itemDetails.add(LineItems.get(j).getLineItemTitle());
-                    productList.add(LineItems.get(j).getLineItemTitle());
-                    productIdList.add(LineItems.get(j).getLineItemProductId());
+                    productList.add(LineItems.get(j).getLineItemName());
+                    productIdList.add(LineItems.get(j).getLineItemProductId()+(LineItems.get(j).getLineItemVariantId()));
                     productDetailList.put(productId,itemDetails);
                 }
             }
@@ -196,8 +196,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             switch (parent.getId())
             {
                 case R.id.spinnerItemSelect:
-                    if(!productList.get(position).equals("ALL")) // for Displaying results for individual items
+                    if(!productList.get(position).equals(AppConstants.kAll)) // for Displaying results for individual items
                     {
+                        pieChart.setVisibility(View.VISIBLE);
                         //Toast.makeText(getApplicationContext(), spinnerItemSelect.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
                         float totalPrice = 0.0f;
                         totalPrice = Float.parseFloat(productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice)) *
@@ -207,9 +208,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                         txtTotalValue.setText("$"+Double.toString((double)Math.round(totalPrice*100.00)/100.00));
                         txtPricePerItem.setText("$"+productDetailList.get(productIdList.get(position)).get(AppConstants.kProductPrice));
 
+                        //setting up Piechart
                         List<PieEntry> entries = new ArrayList<>();
                         Float percentage = (100*totalPrice/calTotalPrice())*100/100;
-                        entries.add(new PieEntry(percentage, productDetailList.get(productIdList.get(position)).get(AppConstants.kProductName))); // total price for each product
+                        entries.add(new PieEntry(percentage, productDetailList.get(productIdList.get(position)).get(AppConstants.kProductFullName))); // total price for each product
                         entries.add(new PieEntry(100 - percentage,"Rest of the items"));// total price for all product
 
                         PieDataSet dataSet = new PieDataSet(entries, "# Products");
@@ -237,6 +239,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     }
                     else // for Displaying results for all items
                     {
+                        pieChart.setVisibility(View.INVISIBLE);
                         txtTotalItem.setText(Integer.toString(calTotalItem()));
                         txtTotalValue.setText("$"+Double.toString((double)Math.round(calTotalPrice()*100.0)/100.0)); // Rounding off to d2 decimal places
                         txtPricePerItem.setText("-");// txtPricePerItem.setText("-");
@@ -254,7 +257,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     public void setSpinner()
     {
         productList.add("ALL"); // To add an option to select calculation for all the items
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, productList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.spinner_item, productList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerItemSelect.setAdapter(adapter);
 
@@ -265,8 +268,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         int totalItem = 0;
         for(int i=0;i<productIdList.size();i++)
         {
-            totalItem  = totalItem + Integer.parseInt(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductQuantity)) ;
-        }
+        totalItem  = totalItem + Integer.parseInt(productDetailList.get(productIdList.get(i)).get(AppConstants.kProductQuantity)) ;
+    }
         return totalItem;
     }
     // For calculating Total Value of all the product
